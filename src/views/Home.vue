@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import FluentTextAlignJustify  from '../icons/FluentTextAlignJustify24Filled.vue'
 import PhPlusBold from '../icons/PhPlusBold.vue'
+import Sidebar from '@/components/Sidebar.vue';
+
+const sidebarVisible = ref(false)
 
 const list = ref([
   { text: '住房', value: -1000 },
@@ -11,6 +14,10 @@ const list = ref([
   { text: '三餐', value: -100 },
   { text: '三餐', value: -100 },
 ])
+
+function toggleSidebar() {
+  sidebarVisible.value = !sidebarVisible.value
+}
 </script>
 
 <template>
@@ -18,7 +25,9 @@ const list = ref([
     <div class="flex flex-col p-6 gap-4">
       <div class="flex justify-center relative">
         <h2 class="font-size-4 c-cool-gray-300">日常账本 | 7月</h2>
-        <div class="font-size-5 absolute top-0 left-0 bottom-0 flex items-center px-2 ml--2"><FluentTextAlignJustify /></div>
+        <div class="font-size-5 absolute top-0 left-0 bottom-0 flex items-center px-2 ml--2" @click="toggleSidebar">
+          <FluentTextAlignJustify/>
+        </div>
       </div>
       <section>
         <div class="flex flex-col">
@@ -63,5 +72,6 @@ const list = ref([
     <div class="w-12 h-12 border-rd-6 bg-blue fixed bottom-6 translate-x-[calc(50vw-24px)] flex justify-center items-center c-white font-size-5">
       <PhPlusBold />
     </div>
+    <Sidebar v-model:visible="sidebarVisible" />
   </main>
 </template>
