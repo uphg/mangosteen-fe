@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 
+defineOptions({
+  inheritAttrs: false
+})
+
 defineProps({
   value: [String, Number] as PropType<string | number>,
   placeholder: [String, Number] as PropType<string | number>,
@@ -14,6 +18,7 @@ function onInput(e: Event) {
   emit('input', e)
   emit('update:value', (e.target as HTMLInputElement).value)
 }
+
 </script>
 
 <template>
@@ -23,6 +28,7 @@ function onInput(e: Event) {
       :placeholder="placeholder?.toString()"
       class="hover-outline-none border-none p-0 font-size-4 placeholder-neutral-300"
       :class="{ 'w-100%': !$slots.suffix, 'flex-grow': $slots.suffix }"
+      v-bind="$attrs"
       @input="onInput"
     >
     <div v-if="$slots.suffix" class="pl-2 mr--2">
