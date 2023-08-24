@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import FluentTextAlignJustify  from '../icons/FluentTextAlignJustify24Filled.vue'
 import PhPlusBold from '../icons/PhPlusBold.vue'
 import Sidebar from '@/components/Sidebar.vue';
+import SidebarSwitch from '@/components/SidebarSwitch.vue';
+import Layout from '@/layouts/default.vue'
+import MonthBalance from '@/components/MonthBalance.vue';
+import MonthExpenditure from '@/components/MonthExpenditure.vue';
+import MonthIncome from '@/components/MonthIncome.vue';
 
-const sidebarVisible = ref(false)
+const router = useRouter()
 
 const list = ref([
   { text: '住房', value: -1000 },
@@ -13,43 +17,46 @@ const list = ref([
   { text: '三餐', value: -100 },
   { text: '三餐', value: -100 },
   { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
+  { text: '三餐', value: -100 },
 ])
 
-function toggleSidebar() {
-  sidebarVisible.value = !sidebarVisible.value
+function onClickCreate() {
+  router.push('/create')
 }
 </script>
 
 <template>
-  <main>
-    <div class="flex flex-col p-6 gap-4">
-      <div class="flex justify-center relative">
-        <h2 class="font-size-4 c-cool-gray-300">日常账本 | 7月</h2>
-        <div class="font-size-5 absolute top-0 left-0 bottom-0 flex items-center px-2 ml--2" @click="toggleSidebar">
-          <FluentTextAlignJustify/>
-        </div>
-      </div>
+  <Layout title="记账喵">
+    <template #icon>
+      <SidebarSwitch/>
+    </template>
+    <div class="flex flex-col gap-6 px-6 pb-6">
       <section>
-        <div class="flex flex-col">
-          <span class="font-size-3 c-cool-gray-300">月支出</span>
-          <span class="font-size-10 font-500">{{ '1599.12' }}</span>
-        </div>
-        <div class="flex pt-2">
-          <div class="w-50% flex flex-col">
-            <span class="font-size-3 c-cool-gray-300">月收入</span>
-            <span class="font-size-5">{{ 800 }}</span>
-          </div>
-          <div class="w-50% flex flex-col">
-            <span class="font-size-3 c-cool-gray-300">月结余</span>
-            <span class="font-size-5">{{ 200 }}</span>
-          </div>
+        <MonthBalance class="mt-1"/>
+        <div class="mt-3 flex gap-4">
+          <MonthExpenditure/>
+          <MonthIncome/>
         </div>
       </section>
       <section class="h-40 border-rd-2 bg-white p-4 shadow-card">
         我是7日统计
       </section>
       <section>
-        <!-- <h2 class="font-size-4 m-b-1">08.17 今天</h2> -->
         <div class="flex flex-col gap-4 border-rd-2 bg-white p-4 shadow-card">
           <div v-for="item, index in list" :key="index" class="flex items-center ">
             <div class="flex items-center justify-center w-10 h-10 border-rd-5 bg-cool-gray-100">
@@ -67,11 +74,10 @@ function toggleSidebar() {
           </div>
         </div>
       </section>
-
     </div>
-    <div class="w-12 h-12 border-rd-6 bg-blue fixed bottom-6 translate-x-[calc(50vw-24px)] flex justify-center items-center c-white font-size-5">
-      <PhPlusBold />
-    </div>
-    <Sidebar v-model:visible="sidebarVisible" />
-  </main>
+  </Layout>
+  <div class="w-12 h-12 border-rd-6 bg-blue fixed bottom-6 translate-x-[calc(50vw-24px)] flex justify-center items-center c-white font-size-5" @click="onClickCreate">
+    <PhPlusBold />
+  </div>
+  <Sidebar/>
 </template>

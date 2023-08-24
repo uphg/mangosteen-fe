@@ -10,6 +10,10 @@ const FormItem = defineComponent({
     type: String as PropType<'text' | 'textarea' | 'button'>,
     error: String as PropType<string>,
     round: Boolean as PropType<boolean>,
+    hue: {
+      type: String as PropType<'default' | 'primary'>,
+      default: 'default'
+    },
     size: {
       type: String as PropType<'medium' | 'small'>,
       default: 'medium'
@@ -29,7 +33,7 @@ const FormItem = defineComponent({
           )
         case 'button':
           return (
-            <Button size={props.size}>{context.slots.default?.()}</Button>
+            <Button size={props.size} round={props.round} hue={props.hue}>{context.slots.default?.()}</Button>
           )
       }
     })

@@ -55,9 +55,10 @@ function updateValidate(key?: FormKeys) {
       <FormItem type="text" v-model:value="formData.email" placeholder="邮箱" :error="errors?.email" round @blur="onBlur('email')"/>
       <FormItem type="text" v-model:value="formData.code" placeholder="验证码" :error="errors?.code" round @blur="onBlur('code')">
         <template #suffix>
-          <Button size="small" @click.prevent>发送验证码</Button>
+          <Button size="small" hue="primary" round @click.prevent>发送验证码</Button>
         </template>
       </FormItem>
+      <FormItem type="button" hue="primary" class="w-100%" round>登录</FormItem>
       <FormItem type="button" class="w-100%">登录</FormItem>
     </Form>
   </div>

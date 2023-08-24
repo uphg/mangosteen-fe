@@ -1,24 +1,22 @@
 <script lang="ts" setup>
+import { useSidebarStore } from '@/stores/sidebar';
+
 defineProps({
-  visible: {
-    type: Boolean as PropType<boolean>,
+visible: {
+  type: Boolean as PropType<boolean>,
     default: false,
   }
 })
 
-const emit = defineEmits(['update:visible'])
-
-function onUpdateShow(value: boolean) {
-  emit('update:visible', value)
-}
+const sidebar = useSidebarStore()
 </script>
 
 <template>
   <van-popup
-    :show="visible"
-    @update:show="onUpdateShow"
+    :show="sidebar.visible"
     position="left"
-    :style="{ width: '75%', height: '100%' }"
+    :style="{ width: '256px', height: '100%' }"
+    @update:show="sidebar.setVisible"
   >
     我是侧栏菜单
   </van-popup>
