@@ -3,8 +3,8 @@ import Button from '@/components/Button.vue'
 import Form from '@/components/Form.vue';
 import FormItem from '@/components/FormItem';
 import { useCountdown } from '@/hooks/useCountdown'
+import { http } from '@/shared/http';
 import { validate, type Rules, type ValidateErrors, validateItem } from '@/shared/validate'
-import axios from 'axios'
 
 type FormData = typeof formData.value
 type FormKeys = keyof (FormData)
@@ -19,9 +19,10 @@ const errors = ref<ValidateErrors<FormData>>({})
 const { count, isCounting, startCount } = useCountdown({ from: 1 })
 
 async function onClickSendValidationCode() {
-  const response = await axios.post('/api/v1/validation_codes', { email: formData.value.email }).catch((e) => {
+  const response = await http.post('/validation_codes', { email: formData.value.email }).catch((e) => {
     console.log('e')
     console.log(e)
+    errors.value.email = e.response.data.errors.email
   })
   startCount()
 }
@@ -46,11 +47,18 @@ function updateValidate(key?: FormKeys) {
       { type: 'required', message: '验证码为必填项' }
     ]
   }
+  
   if (key) {
-    errors.value![key] = validateItem(formData.value, rules, key)
+    errors.value[key] = errors.value[key] ?? [] 
+    const error = validateItem(formData.value, rules, key)
+    console.log('error')
+    console.log(error)
+    errors.value![key]?.push(error)
   } else {
     errors.value = validate(formData.value, rules)
   }
+  console.log('errors.value')
+  console.log(errors.value)
 }
 </script>
 
@@ -67,10 +75,10 @@ function updateValidate(key?: FormKeys) {
         type="text"
         v-model:value="formData.email"
         placeholder="邮箱"
-        :error="errors?.email"
+        :error="errors?.email?.[0]"
         round
         @blur="onBlur('email')"/>
-      <FormItem type="text" v-model:value="formData.code" placeholder="验证码" :error="errors?.code" round @blur="onBlur('code')">
+      <FormItem type="text" v-model:value="formData.code" placeholder="验证码" :error="errors?.code?.[0]" round @blur="onBlur('code')">
         <template #suffix>
           <Button
             class="w-30"
@@ -82,8 +90,7 @@ function updateValidate(key?: FormKeys) {
           >{{ isCounting ? `重新发送(${count})` : '获取验证码' }}</Button>
         </template>
       </FormItem>
-      <FormItem type="button" hue="primary" class="w-100%" round>登录</FormItem>
-      <FormItem type="button" class="w-100%">登录</FormItem>
+      <FormItem type="submit" hue="primary" class="w-100%" round>登录</FormItem>
     </Form>
   </div>
 </template>

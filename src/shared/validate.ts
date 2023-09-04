@@ -7,7 +7,7 @@ export type Rules<T extends object> = {
 }
 
 export type ValidateErrors<T> = {
-  [k in keyof T]?: string
+  [k in keyof T]?: string[]
 }
 
 const ruleTypes = ['required', 'pattern']
@@ -21,16 +21,16 @@ export function validate<T extends FormData>(formData: T, rules: Rules<T>) {
     item?.forEach(rule => {
       const { type, message } = rule
       if (ruleTypes.includes(type)) {
-        // errors[key] = errors[key] ?? []
+        errors[key] = errors[key] ?? []
         switch (type) {
           case 'required':
             if (isEmpty(value)) {
-              errors[key] = message
+              errors[key]?.push(message)
             }
             break
           case 'pattern':
             if (!isEmpty(value) && !rule.regex?.test(value!.toString())) {
-              errors[key] = message
+              errors[key]?.push(message)
             }
             break
           default:
@@ -45,28 +45,28 @@ export function validate<T extends FormData>(formData: T, rules: Rules<T>) {
 
 export function validateItem<T extends FormData>(formData: T, rules: Rules<T>, key: keyof T) {
   const items = rules[key]
-    const value = formData[key]
-    let result = ''
-    items?.forEach(rule => {
-      const { type, message } = rule
-      if (ruleTypes.includes(type)) {
-        switch (type) {
-          case 'required':
-            if (isEmpty(value)) {
-              result = message
-            }
-            break
-          case 'pattern':
-            if (!isEmpty(value) && !rule.regex?.test(value!.toString())) {
-              result = message
-            }
-            break
-          default:
-            break
-        }
+  const value = formData[key]
+  let result = ''
+  items?.forEach(rule => {
+    const { type, message } = rule
+    if (ruleTypes.includes(type)) {
+      switch (type) {
+        case 'required':
+          if (isEmpty(value)) {
+            result = message
+          }
+          break
+        case 'pattern':
+          if (!isEmpty(value) && !rule.regex?.test(value!.toString())) {
+            result = message
+          }
+          break
+        default:
+          break
       }
-    })
-    return result
+    }
+  })
+  return result
 }
 
 
