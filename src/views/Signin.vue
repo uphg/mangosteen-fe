@@ -19,12 +19,15 @@ const errors = ref<ValidateErrors<FormData>>({})
 const { count, isCounting, startCount } = useCountdown({ from: 1 })
 
 async function onClickSendValidationCode() {
-  const response = await http.post('/validation_codes', { email: formData.value.email }).catch((e) => {
-    console.log('e')
-    console.log(e)
-    errors.value.email = e.response.data.errors.email
-  })
+  const response = await http.post('/validation_codes', { email: formData.value.email }).catch(onError)
   startCount()
+}
+
+function onError(error: any) {
+  if (error.response.status === 422) {
+    Object.assign(errors.value, error.response.data.errors)
+  }
+  throw error
 }
 
 function onSubmit(e: Event) {
@@ -51,11 +54,9 @@ function updateValidate(key?: FormKeys) {
   if (key) {
     errors.value[key] = errors.value[key] ?? [] 
     const error = validateItem(formData.value, rules, key)
-    console.log('error')
-    console.log(error)
     errors.value![key]?.push(error)
   } else {
-    errors.value = validate(formData.value, rules)
+    Object.assign(errors.value, validate(formData.value, rules))
   }
   console.log('errors.value')
   console.log(errors.value)
