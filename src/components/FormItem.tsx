@@ -7,7 +7,7 @@ const FormItem = defineComponent({
     label: String as PropType<string>,
     value: [String, Number] as PropType<string | number>,
     placeholder: [String, Number] as PropType<string | number>,
-    type: String as PropType<'text' | 'textarea' | 'button'>,
+    type: String as PropType<'text' | 'textarea' | 'button' | 'submit'>,
     error: String as PropType<string>,
     round: Boolean as PropType<boolean>,
     hue: {
@@ -32,8 +32,9 @@ const FormItem = defineComponent({
             >{{ suffix: context.slots.suffix }}</Input>
           )
         case 'button':
+        case 'submit':
           return (
-            <Button size={props.size} round={props.round} hue={props.hue}>{context.slots.default?.()}</Button>
+            <Button type={props.type} size={props.size} round={props.round} hue={props.hue}>{context.slots.default?.()}</Button>
           )
       }
     })

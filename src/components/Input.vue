@@ -29,6 +29,7 @@ function onInput(e: Event) {
       class="hover-outline-none border-none p-0 font-size-4 placeholder-neutral-300"
       :class="{ 'w-100%': !$slots.suffix, 'flex-grow': $slots.suffix }"
       v-bind="$attrs"
+      :value="value"
       @input="onInput"
     >
     <div v-if="$slots.suffix" class="pl-2 mr--2">

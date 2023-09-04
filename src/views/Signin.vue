@@ -1,19 +1,30 @@
 <script lang="ts" setup>
-import Input from '@/components/Input.vue'
 import Button from '@/components/Button.vue'
 import Form from '@/components/Form.vue';
 import FormItem from '@/components/FormItem';
+import { useCountdown } from '@/hooks/useCountdown'
 import { validate, type Rules, type ValidateErrors, validateItem } from '@/shared/validate'
+import axios from 'axios'
 
 type FormData = typeof formData.value
 type FormKeys = keyof (FormData)
 
 const formData = ref({
-  email: '',
+  email: '1834805770@qq.com',
   code: ''
 })
 
 const errors = ref<ValidateErrors<FormData>>({})
+
+const { count, isCounting, startCount } = useCountdown({ from: 1 })
+
+async function onClickSendValidationCode() {
+  const response = await axios.post('/api/v1/validation_codes', { email: formData.value.email }).catch((e) => {
+    console.log('e')
+    console.log(e)
+  })
+  startCount()
+}
 
 function onSubmit(e: Event) {
   e.preventDefault()
@@ -52,10 +63,23 @@ function updateValidate(key?: FormKeys) {
       <div class="font-size-6 mt-2">账单喵</div>
     </div>
     <Form class="px-6 flex flex-col gap-7" @submit.prevent="onSubmit">
-      <FormItem type="text" v-model:value="formData.email" placeholder="邮箱" :error="errors?.email" round @blur="onBlur('email')"/>
+      <FormItem
+        type="text"
+        v-model:value="formData.email"
+        placeholder="邮箱"
+        :error="errors?.email"
+        round
+        @blur="onBlur('email')"/>
       <FormItem type="text" v-model:value="formData.code" placeholder="验证码" :error="errors?.code" round @blur="onBlur('code')">
         <template #suffix>
-          <Button size="small" hue="primary" round @click.prevent>发送验证码</Button>
+          <Button
+            class="w-30"
+            size="small"
+            hue="primary"
+            round
+            :disabled="isCounting"
+            @click="onClickSendValidationCode"
+          >{{ isCounting ? `重新发送(${count})` : '获取验证码' }}</Button>
         </template>
       </FormItem>
       <FormItem type="button" hue="primary" class="w-100%" round>登录</FormItem>
