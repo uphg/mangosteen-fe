@@ -69,6 +69,17 @@ export function validateItem<T extends FormData>(formData: T, rules: Rules<T>, k
   return result
 }
 
+export function hasError(errors: Record<string, string[]>) {
+  let result
+  for (const key in errors) {
+    if (errors.hasOwnProperty(key)) {
+      const item = errors[key]
+      result = item?.length > 0
+      break
+    }
+  }
+  return result
+}
 
 function isEmpty(value: unknown): value is (null | undefined | '') {
   return value === null || value === undefined || value === ''

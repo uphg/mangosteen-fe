@@ -1,13 +1,26 @@
 <script lang="ts" setup>
-import Button from '@/components/Button.vue'
+import Button from '@/components/Button.vue';
 import Form from '@/components/Form.vue';
 import FormItem from '@/components/FormItem';
+import { useBool } from '@/hooks/useBool';
 import { useCountdown } from '@/hooks/useCountdown'
 import { http } from '@/shared/http';
-import { validate, type Rules, type ValidateErrors, validateItem } from '@/shared/validate'
+import { validate, type Rules, type ValidateErrors, validateItem, hasError } from '@/shared/validate'
+import { showToast } from 'vant';
+import 'vant/es/toast/style';
 
 type FormData = typeof formData.value
 type FormKeys = keyof (FormData)
+
+const rules: Rules<FormData> = {
+  email: [
+    { type: 'required', message: '必填项' },
+    { type: 'pattern', regex: /.+@.+/, message: '必须是邮箱地址' },
+  ],
+  code: [
+    { type: 'required', message: '验证码为必填项' }
+  ]
+}
 
 const formData = ref({
   email: '1834805770@qq.com',
@@ -16,10 +29,12 @@ const formData = ref({
 
 const errors = ref<ValidateErrors<FormData>>({})
 
+const { bool: validateCodeDisabled, on: disabled, off: enable } = useBool()
 const { count, isCounting, startCount } = useCountdown({ from: 1 })
 
 async function onClickSendValidationCode() {
-  const response = await http.post('/validation_codes', { email: formData.value.email }).catch(onError)
+  disabled()
+  const response = await http.post('/validation_codes', { email: formData.value.email }).catch(onError).finally(enable)
   startCount()
 }
 
@@ -31,35 +46,14 @@ function onError(error: any) {
 }
 
 function onSubmit(e: Event) {
-  e.preventDefault()
   console.log('onSubmit')
   updateValidate()
-}
-
-function onBlur(key: FormKeys) {
-  updateValidate(key)
+  if (hasError(errors.value)) return
+  http.post('/session', { email: formData.value.email, code: formData.value.code }).catch(onError)
 }
 
 function updateValidate(key?: FormKeys) {
-  const rules: Rules<FormData> = {
-    email: [
-      { type: 'required', message: '必填项' },
-      { type: 'pattern', regex: /.+@.+/, message: '必须是邮箱地址' },
-    ],
-    code: [
-      { type: 'required', message: '验证码为必填项' }
-    ]
-  }
-  
-  if (key) {
-    errors.value[key] = errors.value[key] ?? [] 
-    const error = validateItem(formData.value, rules, key)
-    errors.value![key]?.push(error)
-  } else {
-    Object.assign(errors.value, validate(formData.value, rules))
-  }
-  console.log('errors.value')
-  console.log(errors.value)
+  Object.assign(errors.value, validate(formData.value, rules))
 }
 </script>
 
@@ -77,16 +71,15 @@ function updateValidate(key?: FormKeys) {
         v-model:value="formData.email"
         placeholder="邮箱"
         :error="errors?.email?.[0]"
-        round
-        @blur="onBlur('email')"/>
-      <FormItem type="text" v-model:value="formData.code" placeholder="验证码" :error="errors?.code?.[0]" round @blur="onBlur('code')">
+        round/>
+      <FormItem type="text" v-model:value="formData.code" placeholder="验证码" :error="errors?.code?.[0]" round>
         <template #suffix>
           <Button
             class="w-30"
             size="small"
             hue="primary"
             round
-            :disabled="isCounting"
+            :disabled="validateCodeDisabled || isCounting"
             @click="onClickSendValidationCode"
           >{{ isCounting ? `重新发送(${count})` : '获取验证码' }}</Button>
         </template>

@@ -7,9 +7,7 @@ export class Http {
   instance: AxiosInstance
 
   constructor(baseURL: string) {
-    this.instance = axios.create({
-      baseURL
-    })
+    this.instance = axios.create({ baseURL })
   }
 
   get<R = unknown>(url: string, query?: Record<string, string>, config?: Omit<AxiosRequestConfig, 'params' | 'url' | 'method'>) {
