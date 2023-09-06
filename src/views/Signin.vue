@@ -29,6 +29,9 @@ const formData = ref({
 
 const errors = ref<ValidateErrors<FormData>>({})
 
+const router = useRouter()
+const route = useRoute()
+
 const { bool: validateCodeDisabled, on: disabled, off: enable } = useBool()
 const { count, isCounting, startCount } = useCountdown({ from: 1 })
 
@@ -45,11 +48,16 @@ function onError(error: any) {
   throw error
 }
 
-function onSubmit(e: Event) {
+async function onSubmit(e: Event) {
   console.log('onSubmit')
   updateValidate()
   if (hasError(errors.value)) return
-  http.post('/session', { email: formData.value.email, code: formData.value.code }).catch(onError)
+
+  const response = await http.post<{ jwt: string }>('/session', { email: formData.value.email, code: formData.value.code }).catch(onError)
+  localStorage.setItem('jwt', response!.data.jwt)
+  
+  const returnTo = route.query.return_to?.toString()
+  router.push(returnTo ?? '/')
 }
 
 function updateValidate(key?: FormKeys) {
