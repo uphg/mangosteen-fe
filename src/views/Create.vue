@@ -2,12 +2,12 @@
 import IconPhXBold from '@/icons/PhXBold.vue'
 import IconCalendarMonthRounded from '@/icons/CalendarMonthRounded.vue'
 import { evaluate, number } from 'mathjs'
+import { http } from '@/shared/http';
+import type { Resources, Tag } from '@/types';
 
 const router = useRouter();
 const amount = ref<string>('0') 
 const active = ref('')
-const tabs = ['支出', '收入']
-
 const quarter = 'w-[calc(25%-6px)]'
 
 const buttons = [
@@ -38,6 +38,16 @@ const buttons = [
     console.log(result)
   } },
 ]
+
+const tags = ref<{
+  expenses: Tag[]
+  income: Tag[]
+}>({
+  expenses: [],
+  income: []
+})
+
+const tagId = ref<number | null>(null) 
 
 function appendText(n: string | number) {
   if (amount.value === '0' && typeof n === 'number') {
@@ -70,6 +80,19 @@ function appendText(n: string | number) {
       amount.value += n
   }
 }
+
+async function getExpensesTags() {
+  const response = await http.get<Resources<Tag>>('/tags', { kind: 'expenses', page: '1' }, { _mock: 'tagIndex', _autoLoading: true });
+  tags.value.expenses = response.data.resources
+}
+
+async function getIncomeTages() {
+  const response = await http.get<Resources<Tag>>('/tags', { kind: 'income', page: '1' }, { _mock: 'tagIndex', _autoLoading: true });
+  tags.value.income = response.data.resources
+}
+
+getExpensesTags()
+getIncomeTages()
 </script>
 
 <template>
@@ -82,9 +105,14 @@ function appendText(n: string | number) {
     <template #nav-right>
       <div class="mr-2 w-9.5"></div>
     </template>
-    <van-tab v-for="item, index in tabs" :title="item" :key="index" >
-      <div class="h-[calc(100vh-300px-45px)] px-4 py-3 overflow-auto">
-        <p v-for="n in 20" :key="`${index}-${n}`">{{ item }} {{ n }} 内容</p>
+    <van-tab title="支出">
+      <div class="h-[calc(100vh-300px-45px)] px-2 py-3 overflow-auto">
+        <Tags :items="tags.expenses" v-model:selected="tagId"/>
+      </div>
+    </van-tab>
+    <van-tab title="收入">
+      <div class="h-[calc(100vh-300px-45px)] px-2 py-3 overflow-auto">
+        <Tags :items="tags.income" v-model:selected="tagId"/>
       </div>
     </van-tab>
   </van-tabs>

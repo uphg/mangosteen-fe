@@ -1,7 +1,14 @@
+import { mock } from '@/mock/mock'
+import type { JSONValue } from '@/types'
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios'
 import { showToast } from 'vant'
 
-type JSONValue = string | number | null | boolean | JSONValue[] | { [key: string]: JSONValue }
+
+
+type GetConfig = Omit<AxiosRequestConfig, 'params' | 'url' | 'method'>
+type PostConfig = Omit<AxiosRequestConfig, 'url' | 'data' | 'method'>
+type PatchConfig = Omit<AxiosRequestConfig, 'url' | 'data'>
+type DeleteConfig = Omit<AxiosRequestConfig, 'params'>
 
 export class Http {
   instance: AxiosInstance
@@ -10,24 +17,44 @@ export class Http {
     this.instance = axios.create({ baseURL })
   }
 
-  get<R = unknown>(url: string, query?: Record<string, string>, config?: Omit<AxiosRequestConfig, 'params' | 'url' | 'method'>) {
+  get<R = unknown>(url: string, query?: Record<string, string>, config?: GetConfig) {
     return this.instance.request<R>({ ...config, url: url, params: query, method: 'get' })
   }
 
-  post<R = unknown>(url: string, data?: Record<string, JSONValue>, config?: Omit<AxiosRequestConfig, 'url' | 'data' | 'method'>) {
+  post<R = unknown>(url: string, data?: Record<string, JSONValue>, config?: PostConfig) {
     return this.instance.request<R>({ ...config, url, data, method: 'post' })
   }
 
-  patch<R = unknown>(url: string, data?: Record<string, JSONValue>, config?: Omit<AxiosRequestConfig, 'url' | 'data'>) {
+  patch<R = unknown>(url: string, data?: Record<string, JSONValue>, config?: PatchConfig) {
     return this.instance.request<R>({ ...config, url, data, method: 'patch' })
   }
 
-  delete<R = unknown>(url: string, query?: Record<string, string>, config?: Omit<AxiosRequestConfig, 'params'>) {
+  delete<R = unknown>(url: string, query?: Record<string, string>, config?: DeleteConfig) {
     return this.instance.request<R>({ ...config, url: url, params: query, method: 'delete' })
   }
 }
 
 export const http = new Http('/api/v1')
+
+// mock
+http.instance.interceptors.response.use(
+  (response) => {
+    mock(response)
+    if (response.status >= 400) {
+      throw { response }
+    } else {
+      return response
+    }
+  },
+  (error) => {
+    mock(error.response)
+    if (error.response.status >= 400) {
+      throw error
+    } else {
+      return error.response
+    }
+  }
+)
 
 http.instance.interceptors.request.use((config) => {
   const jwt = localStorage.getItem('jwt')

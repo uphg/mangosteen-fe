@@ -5,8 +5,7 @@ import FormItem from '@/components/FormItem';
 import { useBool } from '@/hooks/useBool';
 import { useCountdown } from '@/hooks/useCountdown'
 import { http } from '@/shared/http';
-import { validate, type Rules, type ValidateErrors, validateItem, hasError } from '@/shared/validate'
-import { showToast } from 'vant';
+import { validate, type Rules, type ValidateErrors, hasError } from '@/shared/validate'
 import 'vant/es/toast/style';
 
 type FormData = typeof formData.value
