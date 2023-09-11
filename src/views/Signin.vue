@@ -36,12 +36,12 @@ const { count, isCounting, startCount } = useCountdown({ from: 1 })
 
 async function onClickSendValidationCode() {
   disabled()
-  const response = await http.post('/validation_codes', { email: formData.value.email }).catch(onError).finally(enable)
+  const response = await http.post('/validation_codes', { email: formData.value.email }, { _autoLoading: true }).catch(onError).finally(enable)
   startCount()
 }
 
 function onError(error: any) {
-  if (error.response.status === 422) {
+  if (error.response?.status === 422) {
     Object.assign(errors.value, error.response.data.errors)
   }
   throw error
@@ -52,7 +52,7 @@ async function onSubmit(e: Event) {
   updateValidate()
   if (hasError(errors.value)) return
 
-  const response = await http.post<{ jwt: string }>('/session', { email: formData.value.email, code: formData.value.code }).catch(onError)
+  const response = await http.post<{ jwt: string }>('/session', { email: formData.value.email, code: formData.value.code }, { _autoLoading: true }).catch(onError)
   localStorage.setItem('jwt', response!.data.jwt)
   
   const returnTo = route.query.return_to?.toString()

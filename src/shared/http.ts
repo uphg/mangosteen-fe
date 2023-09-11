@@ -1,9 +1,7 @@
 import { mock } from '@/mock/mock'
 import type { JSONValue } from '@/types'
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios'
-import { showToast } from 'vant'
-
-
+import { Toast, closeToast, showLoadingToast, showToast } from 'vant'
 
 type GetConfig = Omit<AxiosRequestConfig, 'params' | 'url' | 'method'>
 type PostConfig = Omit<AxiosRequestConfig, 'url' | 'data' | 'method'>
@@ -36,6 +34,36 @@ export class Http {
 
 export const http = new Http('/api/v1')
 
+http.instance.interceptors.request.use((config) => {
+  const jwt = localStorage.getItem('jwt')
+  if (jwt) {
+    config.headers!.Authorization = `Bearer ${jwt}`
+  }
+  if (config._autoLoading) {
+    showLoadingToast({
+      message: '加载中...',
+      forbidClick: true,
+      duration: 0
+    })
+  }
+  return config
+})
+
+http.instance.interceptors.response.use(
+  (response) => {
+    if (response.config._autoLoading === true) {
+      closeToast()
+    }
+    return response
+  },
+  (error: AxiosError) => {
+    if (error.response?.config._autoLoading === true) {
+      closeToast()
+    }
+    throw error
+  }
+)
+
 // mock
 http.instance.interceptors.response.use(
   (response) => {
@@ -47,6 +75,8 @@ http.instance.interceptors.response.use(
     }
   },
   (error) => {
+    console.log('# error')
+    console.dir(error)
     mock(error.response)
     if (error.response.status >= 400) {
       throw error
@@ -55,14 +85,6 @@ http.instance.interceptors.response.use(
     }
   }
 )
-
-http.instance.interceptors.request.use((config) => {
-  const jwt = localStorage.getItem('jwt')
-  if (jwt) {
-    config.headers!.Authorization = `Bearer ${jwt}`
-  }
-  return config
-})
 
 http.instance.interceptors.response.use(response=>{
   console.log('response')
