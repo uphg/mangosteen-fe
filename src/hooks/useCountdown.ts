@@ -7,7 +7,7 @@ export function useCountdown(options?: CountdownOptions) {
   const isCounting = computed(() => !!timer.value)
 
   function startCount() {
-    timer.value = setInterval(() => {
+    timer.value = window.setInterval(() => {
       count.value -= 1
       if (count.value === to) {
         clearInterval(timer.value!)

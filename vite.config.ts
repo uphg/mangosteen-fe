@@ -9,11 +9,32 @@ import { VantResolver } from "unplugin-vue-components/resolvers";
 import AutoImport from 'unplugin-auto-import/vite'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     define: {
       APP_ENV: env.APP_ENV
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('echarts')) {
+              return 'echarts';
+            }
+            // 生产环境已 tree shaking
+            // if (id.includes('mock') || id.includes('faker')) {
+            //   return 'mock';
+            // }
+            if (id.includes('vant')) {
+              return 'vant';
+            }
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+          }
+        }
+      }
     },
     plugins: [
       vue(),

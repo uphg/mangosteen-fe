@@ -1,7 +1,6 @@
-import { mock } from '@/mock/mock'
 import type { JSONValue } from '@/types'
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios'
-import { Toast, closeToast, showLoadingToast, showToast } from 'vant'
+import { closeToast, showLoadingToast, showToast } from 'vant'
 
 type GetConfig = Omit<AxiosRequestConfig, 'params' | 'url' | 'method'>
 type PostConfig = Omit<AxiosRequestConfig, 'url' | 'data' | 'method'>
