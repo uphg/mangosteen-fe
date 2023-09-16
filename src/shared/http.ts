@@ -65,26 +65,30 @@ http.instance.interceptors.response.use(
 )
 
 // mock
-http.instance.interceptors.response.use(
-  (response) => {
-    mock(response)
-    if (response.status >= 400) {
-      throw { response }
-    } else {
-      return response
-    }
-  },
-  (error) => {
-    console.log('# error')
-    console.dir(error)
-    mock(error.response)
-    if (error.response.status >= 400) {
-      throw error
-    } else {
-      return error.response
-    }
-  }
-)
+if (APP_ENV.DEV) {
+  import('../mock/mock').then(({ mock }) => {
+    http.instance.interceptors.response.use(
+      (response) => {
+        mock(response)
+        if (response.status >= 400) {
+          throw { response }
+        } else {
+          return response
+        }
+      },
+      (error) => {
+        console.log('# error')
+        console.dir(error)
+        mock(error.response)
+        if (error.response.status >= 400) {
+          throw error
+        } else {
+          return error.response
+        }
+      }
+    )
+  })
+}
 
 http.instance.interceptors.response.use(response=>{
   console.log('response')
