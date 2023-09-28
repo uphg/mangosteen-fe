@@ -64,7 +64,7 @@ http.instance.interceptors.response.use(
 )
 
 // mock
-if (APP_ENV.DEV) {
+if (import.meta.env.DEV) {
   import('../mock/mock').then(({ mock }) => {
     http.instance.interceptors.response.use(
       (response) => {

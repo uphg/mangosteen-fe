@@ -8,12 +8,15 @@ import Components from "unplugin-vue-components/vite";
 import { VantResolver } from "unplugin-vue-components/resolvers";
 import AutoImport from 'unplugin-auto-import/vite'
 
+const API_URL = 'http://116.62.24.71:3000/'
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  // env.NODE_ENV === 'development'
   return {
     define: {
-      APP_ENV: env.APP_ENV
+      API_URL: `'http://116.62.24.71:3000/'`
     },
     build: {
       rollupOptions: {
@@ -56,7 +59,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api/v1': {
-          target: 'http://116.62.24.71:3000/',
+          target: API_URL,
         }
       }
     }
